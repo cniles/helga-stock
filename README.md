@@ -1,0 +1,1 @@
+# A Helga IRC Bot Plugin for Stocks
