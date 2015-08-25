@@ -1,24 +1,28 @@
+"""Plugin that uses the Yahoo public stock quote api to provide some
+information about a stocks current status"""
+
 import urllib, urllib2, json
 
 from helga.plugins import command
 
-_help_text = 'Displays stock information'
+_HELP_TEXT = 'Displays stock information'
 
-yq_url = 'https://query.yahooapis.com/v1/public/yql?'
+YQ_URL = 'https://query.yahooapis.com/v1/public/yql?'
 
-@command('stock', help = _help_text)
-def stock(client, channel, nick, message, cmd, args):
+@command('stock', help=_HELP_TEXT)
+def stock(client, channel, nick, message, command, args):
+    """ Entry point for stock command  """
 
     options = {
         'format': 'json',
         'env':'store://datatables.org/alltableswithkeys'
     }
-    options['q'] = 'select symbol, Change, Name, LastTradePriceOnly from yahoo.finance.quote where symbol = "{symbol}"'.format(symbol=args[0])
 
-    f = urllib2.urlopen(yq_url + urllib.urlencode(options))
+    options['q'] = 'select symbol, Change, Name, LastTradePriceOnly\
+    from yahoo.finance.quote where symbol = "{symbol}"'.format(symbol=args[0])
 
-    result = json.loads(f.read())
+    result = json.loads(urllib2.urlopen(YQ_URL + urllib.urlencode(options)))
 
-    print result['query']['results']['quote']
+    phrase = '{Name} ({symbol}) is priced at {LastTradePriceOnly} ({Change})'
 
-    return '{Name} ({symbol}) is priced at {LastTradePriceOnly} ({Change})'.format(**result['query']['results']['quote'])
+    return phrase.format(**result['query']['results']['quote'])
